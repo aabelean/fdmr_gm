@@ -24,9 +24,9 @@ Analysis
 Summary
 
 Introduction
-Closing sea level budget could simply be explained as accounting for all the contributing factors that influence sea level over a period of time. This is significant in climate science and environmental studies, particularly in the context of developing advanced 4D spatio-temporal models.
+Closing sea level budget could simply be explained as accounting for all the contributing factors that influence sea level over a period of time. This is significant in climate science and environmental studies, particularly in the context of developing advanced 4D spatio-temporal models. \n
 
-The processes that influence the sea level involves the dynamics of climate systems including; ocean density, ocean masses, land hydrology, ice sheets and glaciers. These processes have been meshed into 4 (2 ocean processes merged) and embedded in the 4D spatio-temporal model to account for the sea level response to these processes. This tutorial takes you through how the dynamics of sea level rise is modeled in a 4D spatio-temporal domain. This achievement is important because a precise sea level budget is essential for understanding the current state and to predict future changes in sea levels with simultaneously in space and time.
+The processes that influence the sea level involves the dynamics of climate systems including; ocean density, ocean masses, land hydrology, ice sheets and glaciers. These processes have been meshed into 4 (2 ocean processes merged) and embedded in the 4D spatio-temporal model to account for the sea level response to these processes. This tutorial takes you through how the dynamics of sea level rise is modeled in a 4D spatio-temporal domain. This achievement is important because a precise sea level budget is essential for understanding the current state and to predict future changes in sea levels with simultaneously in space and time.\n
 
 
 A number of research questions are related to sea level rise that this tutorial adresses include; (a) How much the sea level components contributes to mean sea level (MSL) change. (b) How much land hydrology and ice mass change contributes to sea level change. (c) Which of the ocean mass components (manometric and steric) contributes more to sea level rise. (d)Is the Bayesian inference useful to constrain each component within uncertainty?
