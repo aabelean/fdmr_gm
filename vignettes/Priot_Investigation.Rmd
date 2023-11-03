@@ -1,0 +1,95 @@
+---
+title: "Prior Investigation"
+author: "Benjamin"
+date: "2023-11-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+__Aim and Description__
+In this section of the tutorial, we show how the ocean processes in the 4D spatio-temporal model can be used to investigate the sea level rise. The Ocean Mass: Chooses informative priors based on geological studies and satellite observations. Bayesian methods can incorporate expert knowledge and historical data to inform priors for glacier and ice sheet melting rates. Steric Effects: Utilize observational data to establish priors for thermal expansion rates. Consider uncertainties in climate projections when selecting priors for steric sea level changes. Manometric Changes: Statistical analysis of historical weather data can help derive priors for atmospheric pressure variations. Bayesian inference techniques can account for uncertainties in manometric changes due to meteorological factors.
+
+We first load dataset
+```{r}
+obs_path <- '/Users/bowusu/Downloads'
+# Load in GIC
+load(base::file.path(obs_path, "Hugonnet_GIC_annual_diff.RData"))
+gic = base::data.frame(gic)
+# replace NAs
+gic$SERate[base::is.na(gic$SERate)] <- base::mean(gic$SERate,na.rm=TRUE)
+gic$SERate[(gic$SERate==0)] <- base::mean(gic$SERate,na.rm=TRUE)
+```
+
+Then we set the number of years
+
+```{r}
+n_years = base::as.integer(base::length(base::unique(gic$Year))) #10 in this case
+
+```
+
+
+We set a function that creates a polygon block. Note that this is a re-sampling that takes into account the disassociation distance
+
+```{r}
+poly_block <- function(i, df_sp, dis = 100000) {
+  sp_i <- sp::SpatialPolygons(list(df_sp@polygons[[i]]), proj4string = sp::CRS("+proj=longlat"))
+  area_i <- df_sp$area[i]
+  n <- base::round(area_i / dis^2)
+
+  if (n < 2) {
+    grid_i <- sp::SpatialPoints(sp_i)
+    ngrid_i <- 1
+  } else {
+    grid_i <- sp::spsample(sp_i, n = base::round(area_i / dis^2), type = "regular", offset = c(0.5, 0.5)) #need to convert to sf?
+    ngrid_i <- base::length(grid_i)
+  }
+
+  grid_xyz <- base::do.call(cbind, GEOmap::Lll2xyz(lat = grid_i@coords[, 2], lon = grid_i@coords[, 1]))
+  block_i <- base::rep(i, ngrid_i)
+  weights <- base::rep(area_i / ngrid_i, ngrid_i)
+
+  return(list(grid_xyz = grid_xyz, block = block_i, weights = weights, ngrid = ngrid_i))
+}
+
+```
+
+We then prepare a gic polygon assuming information resolution of gic to be one mascon cell. Note: Applying polygon blocks could take approximately 10mins on a regular local processor.
+
+Here we only print out a message indicating the number of observations in the dataset and this represents the number of polygons created, multiplied by the number of time steps.
+```{r}
+message(c('Number of Hugonnet tile observations (polygons * timesteps): ', base::nrow(Hugonnet_sp)))
+df_sp <- Hugonnet_sp
+```
+
+Then we assign the dataset to a new variable and use the 'lapply' function to apply the 'poly_block' function to each row of the dataset with a distance parameter of 25000. This results in a list of polygon blocks stored in 'Hugonnet_polygon_block'.
+
+```{r}
+Hugonnet_polygon_block <- base::lapply(1:base::nrow(Hugonnet_sp), poly_block, df_sp = df_sp, dis = 25000)
+```
+
+We then extract the grid values from each element of polygon block and binding them into a single matrix 'Hugonnet_xyz'.
+
+```{r}
+Hugonnet_xyz <- base::do.call(rbind, base::lapply(Hugonnet_polygon_block, "[[", "grid_xyz"))
+```
+
+Similarly, we extract the 'block' and 'weights' values from each element of 'Hugonnet_polygon_block' and bind them into vectors 'Hugonnet_block' and 'Hugonnet_weights, respectively.
+
+```{r}
+Hugonnet_block <- base::do.call(c, base::lapply(Hugonnet_polygon_block, "[[", "block"))
+Hugonnet_weights <- base::do.call(c, base::lapply(Hugonnet_polygon_block, "[[", "weights"))
+```
+
+We print a message that indicats the number of new points we created.
+```{r}
+message(base::paste0('Number of new points (by blocks): ', base::length(Hugonnet_block)))
+```
+
+We finally create a data frame 'gic_points_dat' by combining the 'Hugonnet_xyz' matrix, selected rows from the 'gic' data frame based on indices from 'Hugonnet_block', and 'Hugonnet_weights'. The column 'glaciers.group' is set to the 'time' values from the 'gic' data frame that corresponds to the selected rows.
+
+```{r}
+gic_points_dat<-base::cbind.data.frame(Hugonnet_xyz,gic[Hugonnet_block,],weight=Hugonnet_weights)
+gic_points_dat$glaciers.group<-gic_points_dat$time
+```
