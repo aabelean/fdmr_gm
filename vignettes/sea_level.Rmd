@@ -1,5 +1,5 @@
 ---
-title: "Closing sea level budget"
+title: "Closing Sea Level Budget"
 output: 
   bookdown::html_document2:
     base_format: rmarkdown::html_vignette
@@ -12,16 +12,21 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+Table of Contents
+Introduction to tutorial
+Input data source and how to access Input data
+Data Pre-Processing
+Mesh Building
+Issue documentation
+Prior investigation
+Building and running model
+Analysis
+Summary
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+Introduction
+Closing sea level budget could simply be explained as accounting for all the contributing factors that influence sea level over a period of time. This is significant in climate science and environmental studies, particularly in the context of developing advanced 4D spatio-temporal models.
 
-```{r}
-plot(cars)
-```
+The processes that influence the sea level involves the dynamics of climate systems including; ocean density, ocean masses, land hydrology, ice sheets and glaciers. These processes have been meshed into 4 (2 ocean processes merged) and embedded in the 4D spatio-temporal model to account for the sea level response to these processes. This tutorial takes you through how the dynamics of sea level rise is modeled in a 4D spatio-temporal domain. This achievement is important because a precise sea level budget is essential for understanding the current state and to predict future changes in sea levels with simultaneously in space and time.
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+A number of research questions are related to sea level rise that this tutorial adresses include; (a) How much the sea level components contributes to global mean sea level (GMSL) change. (b) How much land hydrology and ice mass change contributes to sea level change. (c) Which of the ocean components (manometric and steric) contributes more to sea level rise. (d) Is the Bayesian inference useful to constrain each component within uncertainty?
