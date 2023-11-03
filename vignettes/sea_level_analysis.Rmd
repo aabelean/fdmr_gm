@@ -1,0 +1,105 @@
+---
+title: "Closing sea level budget"
+output: 
+  bookdown::html_document2:
+    base_format: rmarkdown::html_vignette
+    fig_caption: yes
+bibliography: "gm.bib"
+link-citations: yes
+vignette: >
+  %\VignetteIndexEntry{slbc}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include=FALSE}
+if (require("dplyr", quietly = T) == F) {
+  install.packages("dplyr")
+}
+
+library(dplyr)
+
+if (require("raster", quietly = T) == F) {
+  install.packages("raster")
+}
+
+library(raster)
+
+if (require("ggplot2", quietly = T) == F) {
+  install.packages("ggplot2")
+}
+
+library(ggplot2)
+
+library(fdmr)
+
+load("data/hydro_bru.RData")
+load("data/icesheet_bru.RData")
+load("data/gic_bru.RData")
+load("data/omass_bru.RData")
+load("data/steric_bru.RData")
+```
+
+
+# Analysis
+## Mean contribution to sea level change
+
+
+```{r}
+mean.hydro <- hydro %>% dplyr::select(mean, sd) %>% summarize(mean = mean(mean), sd = mean(sd))
+
+mean.icesheets <- icesheet %>% dplyr::select(mean, sd) %>% summarize(mean = mean(mean), sd = mean(sd))
+
+mean.glaciers <- glaciers %>% dplyr::select(mean, sd) %>% summarize(mean = mean(mean), sd = mean(sd))
+
+mean.omass <- omass %>% dplyr::select(mean, sd) %>% summarize(mean = mean(mean), sd = mean(sd))
+
+mean.steric <- steric %>% dplyr::select(mean, sd) %>% summarize(mean = mean(mean), sd = mean(sd))
+
+mean.values <- data.frame(mean = c(mean.hydro$mean, mean.icesheets$mean, mean.glaciers$mean,
+                                   mean.omass$mean, mean.steric$mean),
+                          sd = c(mean.hydro$sd, mean.icesheets$sd, mean.glaciers$sd,
+                                 mean.omass$sd, mean.steric$sd),
+                          names = c("Hydrology", "Icesheets", "Glaciers",
+                                    "Ocean mass", "Steric"))
+
+```
+
+```{r, fig.align='center', fig.width=7.25, fig.height=3}
+
+ggplot(mean.values, aes(x=names, y=mean)) + 
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  geom_point(size = 2.5, colour="red") + 
+  xlab("") +
+  ylab("Change in sea level [mm]") +
+  theme_bw()
+
+
+```
+
+
+## Plotting maps
+
+```{r}
+temp <- hydro
+
+# shift longitude by 180 such that it ranges from -180 to 180
+temp$lon <- temp$lon - 180
+
+# convert the data frame to a spatial object
+coordinates(temp) <- ~ lon + lat
+
+# create a raster
+ras_dom <- raster()
+
+# convert the point data to a raster with the mean as its values
+result <- rasterize(temp, ras_dom, "mean", update = TRUE)
+
+
+```
+
+```{r, fig.align='center', fig.width=7.25, fig.height=3.8}
+# plot the raster with the mean attribution of hydrology to sea level change on a map
+plot_map(raster = result)
+
+```
